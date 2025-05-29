@@ -9,4 +9,8 @@ public interface Task extends Runnable {
     void pauseTask();
 
     void resumeTask();
+
+    void setTaskStatus(TaskStatus taskStatus);
+
+    TaskStatus getTaskStatus();
 }

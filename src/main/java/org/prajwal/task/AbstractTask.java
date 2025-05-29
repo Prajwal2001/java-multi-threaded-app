@@ -3,11 +3,13 @@ package org.prajwal.task;
 import org.prajwal.log.Log;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractTask implements Task {
     protected String taskName;
     private final Object pauseLock = new Object();
     private volatile boolean paused = false;
+    private volatile AtomicReference<TaskStatus> taskStatusAtomicReference;
 
     @Override
     public String getTaskName() {
@@ -36,6 +38,7 @@ public abstract class AbstractTask implements Task {
     public void pauseTask() {
         paused = true;
         Log.log("Pausing task " + this.getTaskName() + " at " + LocalDateTime.now());
+        setTaskStatus(TaskStatus.PAUSED);
     }
 
     @Override
@@ -45,14 +48,31 @@ public abstract class AbstractTask implements Task {
             pauseLock.notifyAll();
             Log.log("Resuming task " + this.getTaskName() + " at " + LocalDateTime.now());
         }
+        setTaskStatus(TaskStatus.RUNNING);
+    }
 
+    @Override
+    public void setTaskStatus(TaskStatus taskStatus) {
+        taskStatusAtomicReference.set(taskStatus);
+    }
+
+    @Override
+    public TaskStatus getTaskStatus() {
+        return taskStatusAtomicReference.get();
     }
 
     @Override
     public final void run() {
         Thread.currentThread().setName(getTaskName());
         Log.log("Task started at: " + LocalDateTime.now());
-        runTask();
+        setTaskStatus(TaskStatus.RUNNING);
+        try {
+            runTask();
+            setTaskStatus(TaskStatus.COMPLETED);
+        } catch (Exception e) {
+            setTaskStatus(TaskStatus.FAILED);
+            throw new RuntimeException(e);
+        }
         Log.log("Task completed at: " + LocalDateTime.now());
     }
 
