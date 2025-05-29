@@ -1,17 +1,24 @@
 package org.prajwal;
 
+import de.vandermeer.asciitable.AT_Row;
+import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.asciitable.CWC_LongestWord;
+import de.vandermeer.asciitable.CWC_LongestWordMin;
+import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import org.prajwal.task.Task;
 import org.prajwal.task.factory.TaskFactory;
 
 import java.time.LocalDateTime;
-import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 public class Main {
+    private static List<List<String>> recordRows = new ArrayList<>() {{
+        add(List.of("Perform file read", "1"));
+        add(List.of("Perform file write", "2"));
+        add(List.of("Pause particular task", "3"));
+        add(List.of("Quit", "0"));
+    }};
+
     public static void main(String... args) throws Exception {
 
         System.out.println("Application started execution");
@@ -21,8 +28,8 @@ public class Main {
         Timer timer = null;
 
         while (true) {
-
-            System.out.print("Enter 1 for read, 2 for write, 0 to quit and 3 to pause: ");
+            printAsciiTable();
+            System.out.print("Enter the key: ");
             int input = scanner.nextInt();
 
             if (input == 0) {
@@ -70,5 +77,22 @@ public class Main {
         TaskFactory.quitNow();
         System.out.println("Application execution has ended");
 
+    }
+
+    private static void printAsciiTable() {
+        AsciiTable at = new AsciiTable();
+        at.addRule();
+        AT_Row headerRow = at.addRow("Sl no", "Description", "Key");
+        headerRow.setTextAlignment(TextAlignment.CENTER);
+        at.addRule();
+
+        for (int i = 0; i < recordRows.size(); i++) {
+            List<String> row = recordRows.get(i);
+            AT_Row recordRow = at.addRow(String.valueOf(i + 1), row.get(0), row.get(1));
+            recordRow.setPaddingLeft(1);
+            at.addRule();
+        }
+
+        System.out.println(at.render());
     }
 }
