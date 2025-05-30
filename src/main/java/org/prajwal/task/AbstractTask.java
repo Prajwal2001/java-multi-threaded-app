@@ -9,7 +9,7 @@ public abstract class AbstractTask implements Task {
     protected String taskName;
     private final Object pauseLock = new Object();
     private volatile boolean paused = false;
-    private volatile AtomicReference<TaskStatus> taskStatusAtomicReference;
+    private final AtomicReference<TaskStatus> taskStatusAtomicReference = new AtomicReference<>();
 
     @Override
     public String getTaskName() {

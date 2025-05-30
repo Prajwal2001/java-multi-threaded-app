@@ -3,6 +3,7 @@ package org.prajwal;
 import de.vandermeer.asciitable.*;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import org.prajwal.task.Task;
+import org.prajwal.task.TaskException;
 import org.prajwal.task.factory.TaskController;
 
 import java.time.LocalDateTime;
@@ -10,58 +11,69 @@ import java.util.*;
 
 public class Main {
     private static final List<List<String>> recordRows = new ArrayList<>() {{
-        add(List.of("Perform file read", "1"));
-        add(List.of("Perform file write", "2"));
-        add(List.of("Pause particular task", "3"));
-        add(List.of("Check particular task status", "4"));
+        add(List.of("Create tasks", "1"));
+        add(List.of("Pause task", "2"));
+        add(List.of("Print task status", "3"));
+        add(List.of("Resume task", "4"));
         add(List.of("Quit", "0"));
     }};
+    private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String... args) throws Exception {
 
         System.out.println("Application started execution");
         TaskController.trackTasks();
 
-        Scanner scanner = new Scanner(System.in);
-        Timer timer = null;
+        while (TaskController.isTaskControllerRunning()) {
+            int input = getInput();
 
-        while (true) {
-            printAsciiTable();
-            System.out.print("Enter the key: ");
-            int input = scanner.nextInt();
-
-            if (input == 0) {
-                TaskController.quitNow();
-                if (timer != null) {
-                    timer.cancel();
-                }
-                break;
+            switch (input) {
+                case 0:
+                    TaskController.quitNow();
+                    break;
+                case 1:
+                    createTaskBasedOnInput();
+                    break;
+                case 2:
+                    pauseTask();
+                    break;
+                case 3:
+                    printTaskStatus();
+                    break;
+                case 4:
+                    resumeTask();
+                    break;
+                default:
+                    System.out.println("Invalid key! Please enter again");
             }
-
-            if (input == 3) {
-                startPausingTask(scanner, timer);
-                continue;
-            }
-
-            String operation = (input == 1 ? "read" : "write") + " file";
-
-            Task task = TaskController.createTask(operation);
-            assert task != null;
-            System.out.println("Created task " + task.getTaskName());
         }
 
-        TaskController.quitNow();
         System.out.println("Application execution has ended");
-
     }
 
-    private static void startPausingTask(Scanner scanner, Timer timer) {
-        System.out.print("Enter the task ID to pause: ");
+    private static int getInput() {
+        printAsciiTable();
+        System.out.print("Enter the key: ");
+        return scanner.nextInt();
+    }
+
+    private static void createTaskBasedOnInput() throws TaskException {
+        System.out.print("Enter 1 for file read and 2 to write to a file: ");
+        int taskType = scanner.nextInt();
+
+        String operation = (taskType == 1 ? "read" : "write") + " file";
+        Task task = TaskController.createTask(operation);
+        System.out.println("Created task " + task.getTaskName());
+    }
+
+    private static void pauseTask() {
+        System.out.print("Enter the task ID: ");
         long taskId = scanner.nextLong();
         Task task = TaskController.getTaskById(taskId);
 
         if (task == null) {
-            System.out.println("Invalid task ID...");
+            System.out.println("Invalid task ID");
+            return;
         }
 
         System.out.print("Enter the pause duration in seconds: ");
@@ -71,14 +83,32 @@ public class Main {
 
 
         task.pauseTask();
+    }
 
-        timer = new Timer("Pausing thread");
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                task.resumeTask();
-            }
-        }, duration * 1000);
+    private static void printTaskStatus() {
+        System.out.print("Enter the task ID: ");
+        long taskId = scanner.nextLong();
+        Task task = TaskController.getTaskById(taskId);
+
+        if (task == null) {
+            System.out.println("Invalid task ID");
+            return;
+        }
+
+        System.out.println("Status of " + task.getTaskName() + " is " + task.getTaskStatus());
+    }
+
+    private static void resumeTask() {
+        System.out.print("Enter the task ID: ");
+        long taskId = scanner.nextLong();
+        Task task = TaskController.getTaskById(taskId);
+
+        if (task == null) {
+            System.out.println("Invalid task ID");
+            return;
+        }
+
+        task.resumeTask();
     }
 
     private static void printAsciiTable() {
