@@ -3,8 +3,6 @@ package org.prajwal.task.factory;
 import org.prajwal.task.Task;
 import org.prajwal.task.TaskException;
 import org.prajwal.task.TaskStatus;
-import org.prajwal.task.impl.FileReaderTask;
-import org.prajwal.task.impl.FileWriterTask;
 import org.prajwal.task.registry.TaskRegistry;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +28,7 @@ public class TaskController {
     public static Task createTask(String operation) throws TaskException {
         Task task = null;
 
-        if (!TaskRegistry.existingTask(operation)) {
+        if (!TaskRegistry.existingOperation(operation)) {
             throw new TaskException("Invalid operation");
         }
 
@@ -91,16 +89,18 @@ public class TaskController {
     }
 
     private static void shutdownExecutor(boolean force) {
-        taskControllerRunning.set(false);
-        if (force) {
-            executorService.shutdownNow();
-        } else {
-            executorService.shutdown();
-        }
+        if (isTaskControllerRunning()) {
+            taskControllerRunning.set(false);
+            if (force) {
+                executorService.shutdownNow();
+            } else {
+                executorService.shutdown();
+            }
 
-        for (Thread t : new Thread[]{trackerThread, pausedTasksTracker}) {
-            if (t != null && t.isAlive()) {
-                t.interrupt();
+            for (Thread t : new Thread[]{trackerThread, pausedTasksTracker}) {
+                if (t != null && t.isAlive()) {
+                    t.interrupt();
+                }
             }
         }
     }

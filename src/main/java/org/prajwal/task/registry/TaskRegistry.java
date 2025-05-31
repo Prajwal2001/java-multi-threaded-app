@@ -15,7 +15,7 @@ public final class TaskRegistry {
         return TASK_TO_CLASS_MAP.get(operation);
     }
 
-    public static boolean existingTask(String operation) {
+    public static boolean existingOperation(String operation) {
         return TASK_TO_CLASS_MAP.containsKey(operation);
     }
 }

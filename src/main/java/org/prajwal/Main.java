@@ -18,6 +18,7 @@ public class Main {
         add(List.of("Quit", "0"));
     }};
     private static final Scanner scanner = new Scanner(System.in);
+    public static final int USER_INPUT_DELAY = 1000;
 
     public static void main(String... args) throws Exception {
 
@@ -25,7 +26,7 @@ public class Main {
         TaskController.trackTasks();
 
         while (TaskController.isTaskControllerRunning()) {
-            int input = getInput();
+            int input = getUserInput();
 
             switch (input) {
                 case 0:
@@ -46,12 +47,13 @@ public class Main {
                 default:
                     System.out.println("Invalid key! Please enter again");
             }
+            Thread.sleep(USER_INPUT_DELAY);
         }
 
         System.out.println("Application execution has ended");
     }
 
-    private static int getInput() {
+    private static int getUserInput() {
         printAsciiTable();
         System.out.print("Enter the key: ");
         return scanner.nextInt();

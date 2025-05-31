@@ -76,5 +76,5 @@ public abstract class AbstractTask implements Task {
         Log.log("Task completed at: " + LocalDateTime.now());
     }
 
-    public abstract void runTask();
+    public abstract void runTask() throws TaskException;
 }
