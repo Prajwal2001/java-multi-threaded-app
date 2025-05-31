@@ -5,7 +5,6 @@ import org.prajwal.task.TaskException;
 import org.prajwal.task.TaskStatus;
 import org.prajwal.task.registry.TaskRegistry;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,6 +20,7 @@ public class TaskController {
     private static Thread trackerThread;
     private static Thread pausedTasksTracker;
     private static final int PAUSE_TASK_TRACKER_INTERVAL = 10_000;
+    private static final ScheduledExecutorService resumeTaskScheduleService = Executors.newScheduledThreadPool(10);
 
     private TaskController() {
     }
@@ -28,16 +28,11 @@ public class TaskController {
     public static Task createTask(String operation) throws TaskException {
         Task task = null;
 
-        if (!TaskRegistry.existingOperation(operation)) {
+        if (!TaskRegistry.isExistingOperation(operation)) {
             throw new TaskException("Invalid operation");
         }
 
-        try {
-            Class<?> taskClass = Class.forName(TaskRegistry.getClassPath(operation));
-            task = (Task) taskClass.getDeclaredConstructor().newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new TaskException(e);
-        }
+        task = TaskRegistry.getTaskForOperation(operation);
 
         long taskId = TASK_ID_GENERATOR.getAndIncrement();
         String taskName = "Task-" + taskId;
@@ -97,6 +92,8 @@ public class TaskController {
                 executorService.shutdown();
             }
 
+            resumeTaskScheduleService.shutdownNow();
+
             for (Thread t : new Thread[]{trackerThread, pausedTasksTracker}) {
                 if (t != null && t.isAlive()) {
                     t.interrupt();
@@ -113,7 +110,32 @@ public class TaskController {
         return taskControllerRunning.get();
     }
 
-    public static boolean addToPauseTasks(Task pausedTask) {
-        return pausedTasks.add(pausedTask);
+    public static void pauseTaskForDuration(Task task, long duration) throws TaskException {
+        pauseTask(task);
+        resumeTaskScheduleService.schedule(() -> {
+            try {
+                resumeTask(task);
+            } catch (TaskException e) {
+                throw new RuntimeException(e);
+            }
+        }, duration, TimeUnit.SECONDS);
+    }
+
+    public static void pauseTask(Task task) throws TaskException {
+        if (task.getTaskStatus() == TaskStatus.RUNNING) {
+            task.pauseTask();
+            pausedTasks.add(task);
+        } else {
+            throw new TaskException(task.getTaskName() + " is not in running status");
+        }
+    }
+
+    public static void resumeTask(Task task) throws TaskException {
+        if (task.getTaskStatus() == TaskStatus.PAUSED) {
+            task.resumeTask();
+            pausedTasks.remove(task);
+        } else {
+            throw new TaskException(task.getTaskName() + " is not paused");
+        }
     }
 }

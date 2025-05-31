@@ -8,6 +8,9 @@ import org.prajwal.task.factory.TaskController;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     private static final List<List<String>> recordRows = new ArrayList<>() {{
@@ -71,20 +74,36 @@ public class Main {
     private static void pauseTask() {
         System.out.print("Enter the task ID: ");
         long taskId = scanner.nextLong();
-        Task task = TaskController.getTaskById(taskId);
+        final Task task = TaskController.getTaskById(taskId);
 
         if (task == null) {
             System.out.println("Invalid task ID");
             return;
         }
 
-        System.out.print("Enter the pause duration in seconds: ");
-        long duration = scanner.nextLong();
+        System.out.print("Enter 1 for indefinite pause and 2 for definite duration pause: ");
+        int pauseChoice = scanner.nextInt();
 
-        System.out.println(task.getTaskName() + " will resume at: " + LocalDateTime.now().plusSeconds(duration));
+        if (pauseChoice == 1) {
+            try {
+                TaskController.pauseTask(task);
+            } catch (TaskException e) {
+                System.out.println(e.getMessage());
+            }
+        } else if (pauseChoice == 2) {
+            System.out.print("Enter the pause duration in seconds: ");
+            long duration = scanner.nextLong();
 
+            System.out.println(task.getTaskName() + " will resume at: " + LocalDateTime.now().plusSeconds(duration));
 
-        task.pauseTask();
+            try {
+                TaskController.pauseTaskForDuration(task, duration);
+            } catch (TaskException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            System.out.println("Invalid pause choice!");
+        }
     }
 
     private static void printTaskStatus() {

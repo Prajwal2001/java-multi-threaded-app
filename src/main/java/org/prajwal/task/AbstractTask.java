@@ -2,6 +2,7 @@ package org.prajwal.task;
 
 import org.prajwal.log.Log;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -64,7 +65,8 @@ public abstract class AbstractTask implements Task {
     @Override
     public final void run() {
         Thread.currentThread().setName(getTaskName());
-        Log.log("Task started at: " + LocalDateTime.now());
+        LocalDateTime taskStartDttm = LocalDateTime.now();
+        Log.log("Task started at: " + taskStartDttm);
         setTaskStatus(TaskStatus.RUNNING);
         try {
             runTask();
@@ -73,7 +75,8 @@ public abstract class AbstractTask implements Task {
             setTaskStatus(TaskStatus.FAILED);
             throw new RuntimeException(e);
         }
-        Log.log("Task completed at: " + LocalDateTime.now());
+        LocalDateTime taskEndDttm = LocalDateTime.now();
+        Log.log("Task completed at: " + taskEndDttm + ", taking " + Duration.between(taskStartDttm, taskEndDttm).toSeconds() + " seconds");
     }
 
     public abstract void runTask() throws TaskException;
