@@ -1,4 +1,4 @@
-package org.prajwal.task.factory;
+package org.prajwal.task.controller;
 
 import org.prajwal.task.Task;
 import org.prajwal.task.TaskException;

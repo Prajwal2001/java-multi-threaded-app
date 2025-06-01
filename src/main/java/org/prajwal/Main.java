@@ -4,22 +4,21 @@ import de.vandermeer.asciitable.*;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import org.prajwal.task.Task;
 import org.prajwal.task.TaskException;
-import org.prajwal.task.factory.TaskController;
+import org.prajwal.task.controller.TaskController;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
-    private static final List<List<String>> recordRows = new ArrayList<>() {{
-        add(List.of("Create tasks", "1"));
-        add(List.of("Pause task", "2"));
-        add(List.of("Print task status", "3"));
-        add(List.of("Resume task", "4"));
-        add(List.of("Quit", "0"));
-    }};
+    private static final List<List<String>> recordRows = new ArrayList<>() {
+        {
+            add(List.of("Create tasks", "1"));
+            add(List.of("Pause task", "2"));
+            add(List.of("Print task status", "3"));
+            add(List.of("Resume task", "4"));
+            add(List.of("Quit", "0"));
+        }
+    };
     private static final Scanner scanner = new Scanner(System.in);
     public static final int USER_INPUT_DELAY = 1000;
 

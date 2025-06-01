@@ -2,26 +2,28 @@ package org.prajwal.task.registry;
 
 import org.prajwal.task.Task;
 import org.prajwal.task.TaskException;
+import org.prajwal.task.properties.FileReaderTaskProperties;
+import org.prajwal.task.properties.FileWriterTaskProperties;
+import org.prajwal.task.properties.TaskStatisticsTaskProperties;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class TaskRegistry {
-    private static final Map<String, String> TASK_TO_CLASS_MAP = new HashMap<>();
+    private static final Map<String, TaskEntry> operationToClassMap = new HashMap<>();
 
     static {
-        TASK_TO_CLASS_MAP.put("read file", "org.prajwal.task.impl.FileReaderTask");
-        TASK_TO_CLASS_MAP.put("write file", "org.prajwal.task.impl.FileWriterTask");
-        TASK_TO_CLASS_MAP.put("task statistics", "org.prajwal.task.impl.TaskStatistics");
+        operationToClassMap.put("read file", new TaskEntry("read file", "org.prajwal.task.impl.FileReaderTask", new FileReaderTaskProperties("", 40)));
+        operationToClassMap.put("write file", new TaskEntry("write file", "org.prajwal.task.impl.FileWriterTask", new FileWriterTaskProperties("", 40)));
+        operationToClassMap.put("task statistics", new TaskEntry("task statistics", "org.prajwal.task.impl.TaskStatisticsTask", new TaskStatisticsTaskProperties()));
     }
 
     public static String getClassPath(String operation) {
-        return TASK_TO_CLASS_MAP.get(operation);
+        return operationToClassMap.get(operation).classPath();
     }
 
     public static boolean isExistingOperation(String operation) {
-        return TASK_TO_CLASS_MAP.containsKey(operation);
+        return operationToClassMap.containsKey(operation);
     }
 
     public static Task getTaskForOperation(String operation) throws TaskException {

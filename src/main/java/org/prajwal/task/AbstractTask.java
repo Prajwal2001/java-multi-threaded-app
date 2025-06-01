@@ -1,12 +1,14 @@
 package org.prajwal.task;
 
 import org.prajwal.log.Log;
+import org.prajwal.task.properties.TaskProperties;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractTask implements Task {
+    protected TaskProperties taskProperties;
     protected String taskName;
     private final Object pauseLock = new Object();
     private volatile boolean paused = false;
@@ -63,13 +65,23 @@ public abstract class AbstractTask implements Task {
     }
 
     @Override
+    public void setTaskProperties(TaskProperties taskProperties) {
+        this.taskProperties = taskProperties;
+    }
+
+    @Override
+    public TaskProperties getTaskProperties() {
+        return this.taskProperties;
+    }
+
+    @Override
     public final void run() {
         Thread.currentThread().setName(getTaskName());
         LocalDateTime taskStartDttm = LocalDateTime.now();
         Log.log("Task started at: " + taskStartDttm);
         setTaskStatus(TaskStatus.RUNNING);
         try {
-            runTask();
+            runTask(taskProperties);
             setTaskStatus(TaskStatus.COMPLETED);
         } catch (Exception e) {
             setTaskStatus(TaskStatus.FAILED);
@@ -79,5 +91,5 @@ public abstract class AbstractTask implements Task {
         Log.log("Task completed at: " + taskEndDttm + ", taking " + Duration.between(taskStartDttm, taskEndDttm).toSeconds() + " seconds");
     }
 
-    public abstract void runTask() throws TaskException;
+    public abstract void runTask(TaskProperties taskProperties) throws TaskException;
 }
