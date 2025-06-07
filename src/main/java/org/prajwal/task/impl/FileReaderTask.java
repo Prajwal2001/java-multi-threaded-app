@@ -5,17 +5,13 @@ import org.prajwal.task.AbstractTask;
 import org.prajwal.task.TaskException;
 import org.prajwal.task.properties.FileReaderTaskProperties;
 import org.prajwal.task.properties.TaskProperties;
-import org.prajwal.task.registry.TaskRegistry;
-
-import java.util.Map;
 
 public class FileReaderTask extends AbstractTask {
 
     @Override
     public void runTask(TaskProperties taskProperties) throws TaskException {
-
-
-        int length = ((FileReaderTaskProperties) taskProperties).getFileSize();
+        FileReaderTaskProperties fileReaderTaskProperties = (FileReaderTaskProperties) taskProperties;
+        int length = fileReaderTaskProperties.getFileSize();
 
         for (int i = 1; i <= length; i++) {
             try {

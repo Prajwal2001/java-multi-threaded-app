@@ -24,4 +24,9 @@ public class FileTaskProperties implements TaskProperties {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
+    @Override
+    public String getDisplayString() {
+        return "1.\tfile name: " + fileName + "\n2.\tfile size: " + fileSize;
+    }
 }

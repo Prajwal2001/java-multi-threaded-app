@@ -53,6 +53,7 @@ public class Main {
         }
 
         System.out.println("Application execution has ended");
+        scanner.close();
     }
 
     private static int getUserInput() {
@@ -62,10 +63,24 @@ public class Main {
     }
 
     private static void createTaskBasedOnInput() throws TaskException {
-        System.out.print("Enter 1 for file read and 2 to write to a file: ");
+        System.out.print("Enter 1 for file read, 2 to write to a file and 3 to get all tasks statistics: ");
         int taskType = scanner.nextInt();
 
-        String operation = (taskType == 1 ? "read" : "write") + " file";
+        String operation = "";
+        switch (taskType) {
+            case 1:
+                operation = "read file";
+                break;
+            case 2:
+                operation = "write file";
+                break;
+            case 3:
+                operation = "task statistics";
+                break;
+            default:
+                System.out.println("Invalid task type");
+        }
+
         Task task = TaskController.createTask(operation);
         System.out.println("Created task " + task.getTaskName());
     }
