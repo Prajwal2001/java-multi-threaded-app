@@ -5,6 +5,7 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import org.prajwal.task.Task;
 import org.prajwal.task.TaskException;
 import org.prajwal.task.controller.TaskController;
+import org.prajwal.task.registry.TaskRegistry;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -16,6 +17,8 @@ public class Main {
             add(List.of("Pause task", "2"));
             add(List.of("Print task status", "3"));
             add(List.of("Resume task", "4"));
+            add(List.of("View Task Properties", "5"));
+            // add(List.of("Change Task Properties", "6"));
             add(List.of("Quit", "0"));
         }
     };
@@ -45,6 +48,9 @@ public class Main {
                     break;
                 case 4:
                     resumeTask();
+                    break;
+                case 5:
+                    viewTaskProperties();
                     break;
                 default:
                     System.out.println("Invalid key! Please enter again");
@@ -161,5 +167,27 @@ public class Main {
         }
 
         System.out.println(at.render());
+    }
+
+    private static void viewTaskProperties() {
+        System.out.print("Enter 1 for file read, 2 to write to a file and 3 to get all tasks statistics: ");
+        int taskType = scanner.nextInt();
+
+        String operation = "";
+        switch (taskType) {
+            case 1:
+                operation = "read file";
+                break;
+            case 2:
+                operation = "write file";
+                break;
+            case 3:
+                operation = "task statistics";
+                break;
+            default:
+                System.out.println("Invalid task type");
+        }
+
+        System.out.println(TaskRegistry.getTaskPropertiesForDisplay(operation));
     }
 }

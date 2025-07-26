@@ -4,6 +4,7 @@ import org.prajwal.task.Task;
 import org.prajwal.task.TaskException;
 import org.prajwal.task.properties.FileReaderTaskProperties;
 import org.prajwal.task.properties.FileWriterTaskProperties;
+import org.prajwal.task.properties.TaskProperties;
 import org.prajwal.task.properties.TaskStatisticsTaskProperties;
 
 import java.lang.reflect.InvocationTargetException;
@@ -34,5 +35,13 @@ public final class TaskRegistry {
                  InvocationTargetException e) {
             throw new TaskException(e);
         }
+    }
+
+    public static String getTaskPropertiesForDisplay(String operation) {
+        return getTaskProperties(operation).getDisplayString();
+    }
+
+    public static TaskProperties getTaskProperties(String operation) {
+        return operationToClassMap.get(operation).properties();
     }
 }

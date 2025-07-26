@@ -38,6 +38,7 @@ public class TaskController {
         String taskName = "Task-" + taskId;
         task.setTaskName(taskName);
         task.setTaskStatus(TaskStatus.NEW);
+        task.setTaskProperties(TaskRegistry.getTaskProperties(operation));
         completionService.submit(task, null);
         TASK_ID_TASK_MAP.put(taskId, task);
 
